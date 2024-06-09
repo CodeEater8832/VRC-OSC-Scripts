@@ -8,3 +8,5 @@ pip install **asyncio** <br/>
 pip install **websockets**<br/>
 pip install **json**<br/>
 pip install **argparse**<br/>
+pip install **datetime**<br/>
+pip install **pythonosc**<br/>
