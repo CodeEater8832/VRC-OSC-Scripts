@@ -1,0 +1,55 @@
+#CITY
+CITY = "New York"
+#Headset IP (Change to quest's IP to use on standalone)
+IP = "127.0.0.1"
+
+
+#Ignore everything below unless you know what you are doing.
+import python_weather
+import asyncio
+import websockets
+import json
+import argparse
+import random
+import time
+import os
+from datetime import datetime, timezone
+from pythonosc import udp_client
+datatosend = "nil"
+
+async def getweather():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ip", default=IP,
+    help="The ip of the OSC server")
+    parser.add_argument("--port", type=int, default=9000,
+    help="The port the OSC server is listening on")
+    args = parser.parse_args()
+    while True:
+        async with python_weather.Client(unit=python_weather.METRIC) as cliente:
+          weather = await cliente.get(CITY)
+          c = datetime.now()
+          h = c.strftime('%H')
+          m = c.strftime('%M')
+          if int(h) > 12:
+              h = str(int(h)-12)
+              datatosend = h+":"+m+"pm"
+          else:
+              datatosend = datatosend +h+":"+m
+          #Delete this line below if you don't want it display your city.
+          datatosend = datatosend + "\n" + "📍"+CITY
+          
+          
+          datatosend = datatosend+"\n"+weather.kind.emoji+str(weather.temperature)+"°c ["+str(weather.temperature * 9/5 + 32)+"°f]"
+          client = udp_client.SimpleUDPClient(args.ip, args.port)
+          client.send_message("/chatbox/input", [datatosend, True, False])
+          print(datatosend)
+          time.sleep(5)
+if __name__ == "__main__":
+  if os.name == 'nt':
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+  
+  asyncio.run(getweather())
+
+
+
+
