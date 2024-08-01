@@ -1,0 +1,69 @@
+#THIS CODE IS EXTREMELY DDANGEROUS, DO NOT TINKER WITH IT
+
+
+from cryptography.fernet import Fernet
+from os import walk
+from os.path import join, isfile
+import os
+
+path = "C:/Users/kapta/OneDrive/Documents/VRChatShit/locked"
+passkey = "password"
+
+# Read the key from the file
+keyfile = open("C:/Users/kapta/OneDrive/Desktop/key.txt", "rb")
+key = keyfile.read()
+keyfile.close()
+print("Key:", key)
+
+print("decrypt or encrypt")
+inp = input().strip()
+
+# Initialize the Fernet instance with the key
+f = Fernet(key)
+
+def decrypt(token):
+    return f.decrypt(token)
+
+def de():
+    for dirpath, dirnames, filenames in walk(path):
+        for filename in filenames:
+            file_path = join(dirpath, filename)
+            if isfile(file_path):
+                print("Decrypting:", file_path)
+                with open(file_path, 'rb') as file:
+                    encrypted_data = file.read()
+                    print("Encrypted data:", encrypted_data)
+                    try:
+                        decrypted_data = decrypt(encrypted_data)
+                    except Exception as e:
+                        print(f"Error decrypting {file_path}: {e}")
+                        continue
+                with open(file_path, 'wb') as file:
+                    file.write(decrypted_data)
+
+def en():
+    for dirpath, dirnames, filenames in walk(path):
+        for filename in filenames:
+            file_path = join(dirpath, filename)
+            if isfile(file_path):
+                print("Encrypting:", file_path)
+                with open(file_path, 'rb') as file:
+                    data = file.read()
+                    print("Original data:", data)
+                    encrypted_data = f.encrypt(data)
+                    print("Encrypted data:", encrypted_data)
+                with open(file_path, 'wb') as file:
+                    file.write(encrypted_data)
+
+if inp.lower() == "decrypt":
+    print("This directory is locked. Please enter the password.")
+    pas = input().strip()
+    if pas == passkey:
+        de()
+        os.startfile(path)
+    else:
+        print("Incorrect password.")
+elif inp.lower() == "encrypt":
+    en()
+else:
+    print("Invalid input. Please enter 'decrypt' or 'encrypt'.")
